@@ -6,17 +6,22 @@ It is completely dependency-free, using nothing other than ANSI escape sequences
 
 ## Demos
 
-Basic button demo w/ truecolor background (note:  ugly color banding is from GIF compression):
+[demo_basic.c](https://github.com/Cubified/tuibox/blob/main/demos/demo_basic.c):  Basic button demo w/ truecolor background
+- (Note:  Ugly color banding is from GIF compression)
 
 ![demo_basic.gif](https://github.com/Cubified/tuibox/blob/main/demos/demo_basic.gif)
 
-Bouncing box using custom render loop:
+[demo_bounce.c](https://github.com/Cubified/tuibox/blob/main/demos/demo_bounce.c):  Bouncing box using custom render loop
 
 ![demo_bounce.gif](https://github.com/Cubified/tuibox/blob/main/demos/demo_bounce.gif)
 
-Click and drag:
+[demo_drag.c](https://github.com/Cubified/tuibox/blob/main/demos/demo_drag.c):  Click and drag
 
 ![demo_drag.gif](https://github.com/Cubified/tuibox/blob/main/demos/demo_drag.gif)
+
+[bdfedit](https://github.com/Cubified/bdfedit), a bitmap font editor built using `tuibox`:
+
+![demo_bdfedit.gif](https://github.com/Cubified/tuibox/blob/main/demos/demo_bdfedit.gif)
 
 ## Features
 
@@ -26,8 +31,8 @@ tuibox currently contains the following:
 - Mouse click and hover events on individual UI elements
 - Keyboard events (including escape sequence events, such as arrow keys)
 - Render caching (controlled by a user-defined dirty bit)
-- Completely dependency-free, single-header library using pure ANSI escape sequences (no ncurses)
-- Incrementally-adoptable -- rendering, events, and looping can all be used independently
+- Completely dependency-free, using pure ANSI escape sequences (no ncurses)
+- Incrementally-adoptable -- rendering, events, and loops can all be used independently
 
 ## Design Overview
 
@@ -51,11 +56,6 @@ A complete example is as follows:
 ```c
 /* Global UI struct */
 ui_t u;
-
-/* Function that generates box contents */
-void text(ui_box_t *b, char *out){
-  sprintf(out, "%s", (char*)b->data1);
-}
 
 /* Function that runs on box click */
 void click(ui_box_t *b, int x, int y){
@@ -88,7 +88,7 @@ int main(){
   );
 
   /* Register an event on the q key */
-  ui_key('q', stop, &u);
+  ui_key("q", stop, &u);
 
   /* Render the screen */
   ui_draw(&u);
@@ -107,12 +107,10 @@ int main(){
 To compile all demos in one go:
 
      $ make
-     $ ls demos
-     ...
-     demo_basic
-     demo_bounce
-     demo_drag
-     ...
+
+     $ ./demo_basic
+     $ ./demo_bounce
+     $ ./demo_drag
 
 ## Libraries/See Also
 
