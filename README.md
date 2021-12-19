@@ -7,12 +7,15 @@ It is completely dependency-free, using nothing other than ANSI escape sequences
 ## Demos
 
 Basic button demo w/ truecolor background (note:  ugly color banding is from GIF compression):
+
 ![demo_basic.gif](https://github.com/Cubified/tuibox/blob/main/demos/demo_basic.gif)
 
 Bouncing box using custom render loop:
+
 ![demo_bounce.gif](https://github.com/Cubified/tuibox/blob/main/demos/demo_bounce.gif)
 
 Click and drag:
+
 ![demo_drag.gif](https://github.com/Cubified/tuibox/blob/main/demos/demo_drag.gif)
 
 ## Features
@@ -38,7 +41,7 @@ The basic hierarchy of a UI looks like this:
             - Click event function (optional)
             - Hover event function (optional)
             - Arbitrary user data (see below example)
-- Main loop:  Infinite read() loop gathering user input
+- Main loop:  Infinite `read()` loop gathering user input
     - Update:  Parses user input and fires events (if applicable)
 
 ## Example Code
