@@ -23,6 +23,10 @@ It is completely dependency-free, using nothing other than ANSI escape sequences
 
 ![demo_bdfedit.gif](https://github.com/Cubified/tuibox/blob/main/demos/demo_bdfedit.gif)
 
+[colorslide](https://github.com/Cubified/colorslide), an RGBA/HSL/CMYK color picker built using `tuibox`:
+
+![demo_colorslide.gif](https://github.com/Cubified/tuibox/blob/main/demos/demo_colorslide.gif)
+
 ## Features
 
 tuibox currently contains the following:
