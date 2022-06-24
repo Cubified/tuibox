@@ -27,6 +27,10 @@ It is completely dependency-free, using nothing other than ANSI escape sequences
 
 ![demo_colorslide.gif](https://github.com/Cubified/tuibox/blob/main/demos/demo_colorslide.gif)
 
+[vt100utils](https://github.com/Cubified/vt100utils), an ANSI graphics escape sequence encoder/decoder that can couple with `tuibox` for content-aware text processing:
+
+![demo_vt100utils.gif](https://github.com/Cubified/tuibox/blob/main/demos/demo_vt100utils.gif)
+
 ## Features
 
 tuibox currently contains the following:
