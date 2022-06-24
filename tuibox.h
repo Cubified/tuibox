@@ -490,10 +490,9 @@ int ui_add(
   b->data2 = data2;
 
   draw(b, buf);
-  b->cache = malloc(strlen(buf));
+  b->cache = realloc(buf, strlen(buf) * 2);
 
   vec_push(&(u->b), b);
-  free(buf);
 
   return b->id;
 }
@@ -531,7 +530,7 @@ void ui_draw_one(ui_box_t *tmp, int flush, ui_t *u){
 
   if(tmp->screen != u->screen) return;
   
-  buf = calloc(1, strlen(tmp->cache));
+  buf = calloc(1, strlen(tmp->cache) * 2);
   if(u->force ||
      tmp->watch == NULL ||
      *(tmp->watch) != tmp->last
