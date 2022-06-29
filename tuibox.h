@@ -445,9 +445,7 @@ void ui_free(ui_t *u){
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &(u->tio));
 
   vec_foreach(&(u->b), val, i){
-    if(val->watch != NULL){
-      free(val->cache);
-    }
+    free(val->cache);
     free(val);
   }
   vec_deinit(&(u->b));
@@ -503,11 +501,9 @@ int ui_add(
   b->data1 = data1;
   b->data2 = data2;
 
-  if(watch != NULL){
-    b->cache = malloc(MAXCACHESIZE);
-    draw(b, b->cache);
-    b->cache = realloc(b->cache, strlen(b->cache) * 2);
-  }
+  b->cache = malloc(MAXCACHESIZE);
+  draw(b, b->cache);
+  b->cache = realloc(b->cache, strlen(b->cache) * 2);
 
   vec_push(&(u->b), b);
 
@@ -547,19 +543,14 @@ void ui_draw_one(ui_box_t *tmp, int flush, ui_t *u){
 
   if(tmp->screen != u->screen) return;
   
-  buf = calloc(
-    1,
-    tmp->watch == NULL ? MAXCACHESIZE : strlen(tmp->cache) * 2
-  );
+  buf = calloc(1, strlen(tmp->cache) * 2);
   if(u->force ||
      tmp->watch == NULL ||
      *(tmp->watch) != tmp->last
   ){
     tmp->draw(tmp, buf);
-    if(tmp->watch != NULL){
-      tmp->last = *(tmp->watch);
-      strcpy(tmp->cache, buf);
-    }
+    if(tmp->watch != NULL) tmp->last = *(tmp->watch);
+    strcpy(tmp->cache, buf);
   } else {
     /* buf is allocated proportionally to tmp->cache, so strcpy is safe */
     strcpy(buf, tmp->cache);
