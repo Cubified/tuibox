@@ -15,17 +15,19 @@ void text(ui_box_t *b, char *out){
 }
 
 void draw(ui_box_t *b, char *out){
-  int x, y;
-  char tmp[256];
+  int x, y, len = 0, max = MAXCACHESIZE;
 
   sprintf(out, "");
   for(y=0;y<b->h;y++){
     for(x=0;x<b->w;x++){
       /* Truecolor string to generate gradient */
-      sprintf(tmp, "\x1b[48;2;%i;%i;%im ", (int)round(255 * ((double)x / (double)b->w)), (int)round(255 * ((double)y / (double)b->h)), (int)round(255 * ((double)x * (double)y / ((double)b->w * (double)b->h))));
-      strcat(out, tmp);
+      len += sprintf(out + len, "\x1b[48;2;%i;%i;%im ", (int)round(255 * ((double)x / (double)b->w)), (int)round(255 * ((double)y / (double)b->h)), (int)round(255 * ((double)x * (double)y / ((double)b->w * (double)b->h))));
+
+      if(len + 1024 > max){
+        out = realloc(out, (max *= 2));
+      }
     }
-    strcat(out, "\x1b[0m\n");
+    strcat(out + len, "\x1b[0m\n");
   }
 }
 

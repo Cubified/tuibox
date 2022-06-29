@@ -332,13 +332,24 @@ void vec_swap_(char **data, int *length, int *capacity, int memsz,
   tok = strtok(NULL, ";"); \
   y = strtol(tok, NULL, 10) - (u->canscroll ? u->scroll : 0)
 
-#define LOOP_AND_EXECUTE(f) \
+#define CLICK_COMPARATOR(x, y, tmp) \
+  (u->click == tmp || \
+   (box_contains(x, y, tmp) && u->click == NULL))
+
+#define HOVER_COMPARATOR(x, y, tmp) \
+  (box_contains(x, y, tmp))
+
+#define LOOP_AND_EXECUTE(f, c) \
   do { \
     vec_foreach(&(u->b), tmp, ind){ \
       if(tmp->screen == u->screen && \
          f != NULL && \
-         box_contains(x, y, tmp)){ \
+         (c ? CLICK_COMPARATOR(x, y, tmp) : HOVER_COMPARATOR(x, y, tmp)) \
+      ){ \
         f(tmp, x, y, u->mouse); \
+        if(c){ \
+          u->click = tmp; \
+        } \
       } \
     } \
   } while(0)
@@ -376,6 +387,7 @@ typedef struct ui_t {
   struct winsize ws;
   vec_box_t b;
   vec_evt_t e;
+  ui_box_t *click;
   int mouse, screen,
       scroll, canscroll,
       id, force;
@@ -402,7 +414,9 @@ void ui_new(int s, ui_t *u){
 
   vec_init(&(u->b));
   vec_init(&(u->e));
-  
+
+  u->click = NULL;
+
   printf("\x1b[?1049h\x1b[0m\x1b[2J\x1b[?1003h\x1b[?1015h\x1b[?1006h\x1b[?25l");
 
   u->mouse = 0;
@@ -431,7 +445,9 @@ void ui_free(ui_t *u){
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &(u->tio));
 
   vec_foreach(&(u->b), val, i){
-    free(val->cache);
+    if(val->watch != NULL){
+      free(val->cache);
+    }
     free(val);
   }
   vec_deinit(&(u->b));
@@ -466,8 +482,6 @@ int ui_add(
   void *data1, void *data2,
   ui_t *u
 ){
-  char *buf = malloc(MAXCACHESIZE);
-
   ui_box_t *b = malloc(sizeof(ui_box_t));
 
   b->id = u->id++;
@@ -489,8 +503,11 @@ int ui_add(
   b->data1 = data1;
   b->data2 = data2;
 
-  draw(b, buf);
-  b->cache = realloc(buf, strlen(buf) * 2);
+  if(watch != NULL){
+    b->cache = malloc(MAXCACHESIZE);
+    draw(b, b->cache);
+    b->cache = realloc(b->cache, strlen(b->cache) * 2);
+  }
 
   vec_push(&(u->b), b);
 
@@ -530,14 +547,19 @@ void ui_draw_one(ui_box_t *tmp, int flush, ui_t *u){
 
   if(tmp->screen != u->screen) return;
   
-  buf = calloc(1, strlen(tmp->cache) * 2);
+  buf = calloc(
+    1,
+    tmp->watch == NULL ? MAXCACHESIZE : strlen(tmp->cache) * 2
+  );
   if(u->force ||
      tmp->watch == NULL ||
      *(tmp->watch) != tmp->last
   ){
     tmp->draw(tmp, buf);
-    if(tmp->watch != NULL) tmp->last = *(tmp->watch);
-    strcpy(tmp->cache, buf);
+    if(tmp->watch != NULL){
+      tmp->last = *(tmp->watch);
+      strcpy(tmp->cache, buf);
+    }
   } else {
     /* buf is allocated proportionally to tmp->cache, so strcpy is safe */
     strcpy(buf, tmp->cache);
@@ -610,15 +632,16 @@ void _ui_update(char *c, int n, ui_t *u){
     switch(tok[0]){
       case '0':
         u->mouse = (strchr(c, 'm') == NULL);
-        if(u->mouse){
-          COORDINATE_DECODE();
-          LOOP_AND_EXECUTE(tmp->onclick);
+        COORDINATE_DECODE();
+        LOOP_AND_EXECUTE(tmp->onclick, 1);
+        if(!u->mouse){
+          u->click = NULL;
         }
         break;
       case '3':
         u->mouse = (strcmp(tok, "32") == 0);
         COORDINATE_DECODE();
-        LOOP_AND_EXECUTE(tmp->onhover);
+        LOOP_AND_EXECUTE(tmp->onhover, u->mouse);
         break;
       case '6':
         if(u->canscroll){
